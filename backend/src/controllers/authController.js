@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import { getSheets, SPREADSHEET_ID, USERS_SHEET } from '../config/google-sheets.js';
+import { db } from '../config/google-sheets.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
@@ -18,27 +18,10 @@ export const signup = async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
-    const sheets = await getSheets();
-
     // Check if user already exists
-    try {
-      const response = await sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: `${USERS_SHEET}!A:F`,
-      });
-
-      const rows = response.data.values || [];
-      const headerRow = rows[0];
-
-      if (rows.length > 1) {
-        for (let i = 1; i < rows.length; i++) {
-          if (rows[i][1] === email) {
-            return res.status(409).json({ error: 'User already exists' });
-          }
-        }
-      }
-    } catch (error) {
-      console.log('First user being created');
+    const existingUser = db.findUserByEmail(email);
+    if (existingUser) {
+      return res.status(409).json({ error: 'User already exists' });
     }
 
     // Hash password
@@ -46,49 +29,18 @@ export const signup = async (req, res) => {
     const userId = uuidv4();
     const timestamp = new Date().toISOString();
 
-    // Prepare user data
-    const userData = [
-      userId,
+    // Create user object
+    const userData = {
+      id: userId,
       email,
-      hashedPassword,
+      password: hashedPassword,
       name,
       role,
-      timestamp,
-    ];
+      createdAt: timestamp,
+    };
 
-    // Check if sheet has headers
-    let hasHeaders = false;
-    try {
-      const response = await sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: `${USERS_SHEET}!A1:F1`,
-      });
-      hasHeaders = !!(response.data.values && response.data.values.length > 0);
-    } catch (error) {
-      hasHeaders = false;
-    }
-
-    // Add headers if needed
-    if (!hasHeaders) {
-      await sheets.spreadsheets.values.append({
-        spreadsheetId: SPREADSHEET_ID,
-        range: `${USERS_SHEET}!A1`,
-        valueInputOption: 'RAW',
-        requestBody: {
-          values: [['ID', 'Email', 'Password', 'Name', 'Role', 'CreatedAt']],
-        },
-      });
-    }
-
-    // Append user data
-    const appendResponse = await sheets.spreadsheets.values.append({
-      spreadsheetId: SPREADSHEET_ID,
-      range: `${USERS_SHEET}!A:F`,
-      valueInputOption: 'RAW',
-      requestBody: {
-        values: [userData],
-      },
-    });
+    // Add to database
+    db.addUser(userData);
 
     // Generate JWT token
     const token = jwt.sign(
@@ -121,38 +73,15 @@ export const login = async (req, res) => {
       return res.status(400).json({ error: 'Email and password required' });
     }
 
-    const sheets = await getSheets();
+    // Find user in database
+    const user = db.findUserByEmail(email);
 
-    // Get user from Google Sheets
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: `${USERS_SHEET}!A:F`,
-    });
-
-    const rows = response.data.values || [];
-    let user = null;
-
-    if (rows.length > 1) {
-      for (let i = 1; i < rows.length; i++) {
-        if (rows[i][1] === email && rows[i][4] === role) {
-          user = {
-            id: rows[i][0],
-            email: rows[i][1],
-            hashedPassword: rows[i][2],
-            name: rows[i][3],
-            role: rows[i][4],
-          };
-          break;
-        }
-      }
-    }
-
-    if (!user) {
+    if (!user || user.role !== role) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     // Verify password
-    const passwordMatch = await bcrypt.compare(password, user.hashedPassword);
+    const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
