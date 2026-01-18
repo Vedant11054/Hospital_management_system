@@ -2,10 +2,10 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "env": [
-    "VITE_API_URL"
-  ],
-  "public": false,
+  "env": {
+    "VITE_API_URL": "@vite_api_url"
+  },
+  "envPrefix": "VITE_",
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
