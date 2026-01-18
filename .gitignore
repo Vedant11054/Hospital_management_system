@@ -7,10 +7,27 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
 dist
 dist-ssr
 *.local
+
+# Environment variables (NEVER commit these!)
+.env
+.env.local
+.env.*.local
+.env.production
+
+# Credentials and secrets
+credentials.json
+*.pem
+*.key
+*.p12
+
+# Testing
+coverage/
+.nyc_output/
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +39,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Build
+dist/
+build/
+.turbo/
