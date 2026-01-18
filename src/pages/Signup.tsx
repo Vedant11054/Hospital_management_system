@@ -20,22 +20,44 @@ const roleLabels = {
   patient: 'Patient',
 };
 
-const Login = () => {
+const Signup = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole>('patient');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
+    // Validation
+    if (!name || !email || !password || !confirmPassword) {
+      setError('All fields are required');
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      setIsLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch('http://localhost:5000/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,6 +65,7 @@ const Login = () => {
         body: JSON.stringify({
           email,
           password,
+          name,
           role: selectedRole,
         }),
       });
@@ -50,12 +73,12 @@ const Login = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Login failed');
+        setError(data.error || 'Signup failed');
         setIsLoading(false);
         return;
       }
 
-      // Store token and user in localStorage
+      // Store token in localStorage
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
@@ -83,7 +106,7 @@ const Login = () => {
           <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
         </div>
-        
+
         <div className="relative z-10 flex flex-col justify-center p-12 text-white">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur">
@@ -91,12 +114,12 @@ const Login = () => {
             </div>
             <span className="text-2xl font-bold">MediCore</span>
           </div>
-          
+
           <h1 className="text-4xl font-bold mb-4">
-            Welcome Back
+            Join MediCore
           </h1>
           <p className="text-lg text-white/80 mb-8">
-            Sign in to access your personalized healthcare management dashboard.
+            Create your account and start managing healthcare efficiently.
           </p>
 
           <div className="space-y-4">
@@ -104,26 +127,26 @@ const Login = () => {
               <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
                 <Building2 className="w-4 h-4" />
               </div>
-              <span>Manage multiple hospitals</span>
+              <span>Multi-hospital management</span>
             </div>
             <div className="flex items-center gap-3 text-white/80">
               <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
                 <UserCog className="w-4 h-4" />
               </div>
-              <span>Role-based access control</span>
+              <span>Role-based access</span>
             </div>
             <div className="flex items-center gap-3 text-white/80">
               <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
                 <Stethoscope className="w-4 h-4" />
               </div>
-              <span>Secure patient records</span>
+              <span>Secure data management</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Right Panel - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-background">
+      {/* Right Panel - Signup Form */}
+      <div className="flex-1 flex items-center justify-center p-8 bg-background overflow-y-auto">
         <div className="w-full max-w-md">
           {/* Back Link */}
           <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors">
@@ -139,9 +162,9 @@ const Login = () => {
             <span className="text-xl font-bold">MediCore</span>
           </div>
 
-          <h2 className="text-2xl font-bold text-foreground mb-2">Sign In</h2>
-          <p className="text-muted-foreground mb-8">
-            Enter your credentials to access your dashboard
+          <h2 className="text-2xl font-bold text-foreground mb-2">Create Account</h2>
+          <p className="text-muted-foreground mb-6">
+            Join our healthcare management platform
           </p>
 
           {/* Error Message */}
@@ -179,8 +202,21 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Login Form */}
-          <form onSubmit={handleLogin} className="space-y-4">
+          {/* Signup Form */}
+          <form onSubmit={handleSignup} className="space-y-4">
+            <div>
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="John Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="mt-1.5"
+                required
+              />
+            </div>
+
             <div>
               <Label htmlFor="email">Email Address</Label>
               <Input
@@ -195,10 +231,7 @@ const Login = () => {
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <Label htmlFor="password">Password</Label>
-                <a href="#" className="text-sm text-primary hover:underline">Forgot password?</a>
-              </div>
+              <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -206,7 +239,7 @@ const Login = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pr-10"
+                  className="mt-1.5 pr-10"
                   required
                 />
                 <button
@@ -219,15 +252,37 @@ const Login = () => {
               </div>
             </div>
 
+            <div>
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="mt-1.5 pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
             <Button type="submit" variant="hero" size="lg" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? 'Creating Account...' : 'Sign Up'}
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground mt-6">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-primary hover:underline font-medium">
-              Sign up
+            Already have an account?{' '}
+            <Link to="/login" className="text-primary hover:underline font-medium">
+              Sign in
             </Link>
           </p>
         </div>
@@ -236,4 +291,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;
