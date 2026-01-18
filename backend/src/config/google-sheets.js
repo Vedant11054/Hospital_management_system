@@ -10,8 +10,6 @@ let doc = null;
 let usersSheet = null;
 
 async function initializeSheet() {
-  if (doc) return { doc, usersSheet };
-
   try {
     const credentialsPath = path.join(__dirname, '../../credentials.json');
     
@@ -27,23 +25,19 @@ async function initializeSheet() {
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
-    doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEETS_ID, auth);
-    await doc.loadInfo();
+    const newDoc = new GoogleSpreadsheet(process.env.GOOGLE_SHEETS_ID, auth);
+    await newDoc.loadInfo();
 
     // Get or create Users sheet
-    usersSheet = doc.sheetsByTitle['Users'];
+    let sheet = newDoc.sheetsByTitle['Users'];
     
-    if (!usersSheet) {
-      usersSheet = await doc.addSheet({ title: 'Users' });
-    }
-
-    // Add headers if sheet is empty
-    if (usersSheet.rowCount === 1 || usersSheet.rowCount === 0) {
-      await usersSheet.setHeaderRow(['ID', 'Email', 'Password', 'Name', 'Role', 'CreatedAt']);
+    if (!sheet) {
+      sheet = await newDoc.addSheet({ title: 'Users' });
+      await sheet.setHeaderRow(['ID', 'Email', 'Password', 'Name', 'Role', 'CreatedAt']);
     }
 
     console.log('✅ Google Sheets connected');
-    return { doc, usersSheet };
+    return { doc: newDoc, usersSheet: sheet };
   } catch (error) {
     console.error('❌ Google Sheets error:', error.message);
     throw error;

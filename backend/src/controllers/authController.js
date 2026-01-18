@@ -19,7 +19,7 @@ export const signup = async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUser = db.findUserByEmail(email);
+    const existingUser = await db.findUserByEmail(email);
     if (existingUser) {
       return res.status(409).json({ error: 'User already exists' });
     }
@@ -40,7 +40,7 @@ export const signup = async (req, res) => {
     };
 
     // Add to database
-    db.addUser(userData);
+    await db.addUser(userData);
 
     // Generate JWT token
     const token = jwt.sign(
@@ -74,7 +74,7 @@ export const login = async (req, res) => {
     }
 
     // Find user in database
-    const user = db.findUserByEmail(email);
+    const user = await db.findUserByEmail(email);
 
     if (!user || user.role !== role) {
       return res.status(401).json({ error: 'Invalid credentials' });
