@@ -1,5 +1,10 @@
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { StatCard } from '@/components/dashboard/StatCard';
+import { StatsDisplay } from '@/components/dashboard/StatsDisplay';
+import { useStatistics } from '@/hooks/use-statistics';
+import { FormDialog } from '@/components/FormDialog';
+import { BookAppointmentForm } from '@/components/forms/BookAppointmentForm';
+import { useEffect, useState } from 'react';
 import { 
   LayoutDashboard, 
   Calendar, 
@@ -11,7 +16,8 @@ import {
   Clock,
   Download,
   Plus,
-  Users
+  Users,
+  Stethoscope
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -37,23 +43,122 @@ const recentPrescriptions = [
 ];
 
 const PatientDashboard = () => {
+  const { stats } = useStatistics();
+  const [user, setUser] = useState<any>(null);
+  const [showBookAppointment, setShowBookAppointment] = useState(false);
+  const [doctors, setDoctors] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const parsedUser = JSON.parse(userData);
+      setUser(parsedUser);
+      fetchAppointments(parsedUser.id);
+    }
+    fetchDoctors();
+  }, []);
+
+  const fetchDoctors = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/doctors/list');
+      const data = await response.json();
+      if (data.success) {
+        setDoctors(data.doctors || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch doctors:', error);
+    }
+  };
+
+  const fetchAppointments = async (patientId: string) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/appointments/patient/${patientId}`);
+      const data = await response.json();
+      if (data.success) {
+        setAppointments(data.appointments || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch appointments:', error);
+    }
+  };
+
+  const userName = user?.name || 'User';
+
+  const handleBookAppointment = (doctor: any) => {
+    setSelectedDoctor(doctor);
+    setShowBookAppointment(true);
+  };
+
   return (
     <DashboardLayout 
       role="patient" 
-      userName="John Smith" 
+      userName={userName} 
       navItems={navItems}
     >
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Welcome back, John</h1>
+          <h1 className="text-2xl font-bold text-foreground">Welcome back, {userName}</h1>
           <p className="text-muted-foreground">Manage your health journey in one place</p>
         </div>
-        <Button variant="hero">
+        <Button variant="hero" onClick={() => setShowBookAppointment(true)}>
           <Plus className="w-4 h-4" />
           Book Appointment
         </Button>
       </div>
+
+      {/* Book Appointment Dialog */}
+      <FormDialog
+        open={showBookAppointment}
+        onOpenChange={setShowBookAppointment}
+        title="Book an Appointment"
+      >
+        {selectedDoctor ? (
+          <BookAppointmentForm
+            patientId={user?.id || ''}
+            doctorId={selectedDoctor.id}
+            hospitalId={selectedDoctor.hospitalId}
+            doctorName={selectedDoctor.name}
+            onSuccess={() => {
+              fetchAppointments(user?.id);
+            }}
+            onClose={() => {
+              setShowBookAppointment(false);
+              setSelectedDoctor(null);
+            }}
+          />
+        ) : (
+          <div className="space-y-2">
+            <p className="text-sm text-gray-600">Select a doctor to book appointment:</p>
+            <div className="max-h-64 overflow-y-auto space-y-2">
+              {doctors.length > 0 ? (
+                doctors.map((doctor) => (
+                  <button
+                    key={doctor.id}
+                    onClick={() => handleBookAppointment(doctor)}
+                    className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-blue-50 transition"
+                  >
+                    <p className="font-medium">{doctor.name}</p>
+                    <p className="text-sm text-gray-600">{doctor.specialty}</p>
+                  </button>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">No doctors available</p>
+              )}
+            </div>
+          </div>
+        )}
+      </FormDialog>
+
+      {/* System Statistics */}
+      {stats && (
+        <StatsDisplay 
+          totalUsers={stats.totalUsers} 
+          totalHospitals={stats.totalHospitals} 
+        />
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

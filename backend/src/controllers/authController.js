@@ -49,6 +49,9 @@ export const signup = async (req, res) => {
       { expiresIn: '7d' }
     );
 
+    // Get statistics
+    const stats = await db.getStatistics();
+
     res.status(201).json({
       message: 'User created successfully',
       user: {
@@ -58,6 +61,7 @@ export const signup = async (req, res) => {
         role,
       },
       token,
+      statistics: stats,
     });
   } catch (error) {
     console.error('Signup error:', error);
@@ -93,6 +97,9 @@ export const login = async (req, res) => {
       { expiresIn: '7d' }
     );
 
+    // Get statistics
+    const stats = await db.getStatistics();
+
     res.json({
       message: 'Login successful',
       user: {
@@ -102,6 +109,7 @@ export const login = async (req, res) => {
         role: user.role,
       },
       token,
+      statistics: stats,
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -121,5 +129,18 @@ export const verifyToken = async (req, res) => {
     res.json({ valid: true, user: decoded });
   } catch (error) {
     res.status(401).json({ error: 'Invalid token' });
+  }
+};
+
+export const getStats = async (req, res) => {
+  try {
+    const stats = await db.getStatistics();
+    res.json({
+      success: true,
+      statistics: stats,
+    });
+  } catch (error) {
+    console.error('Stats error:', error);
+    res.status(500).json({ error: error.message || 'Failed to fetch statistics' });
   }
 };

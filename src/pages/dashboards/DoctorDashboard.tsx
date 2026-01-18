@@ -1,5 +1,8 @@
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { StatCard } from '@/components/dashboard/StatCard';
+import { StatsDisplay } from '@/components/dashboard/StatsDisplay';
+import { useStatistics } from '@/hooks/use-statistics';
+import { useEffect, useState } from 'react';
 import { 
   LayoutDashboard, 
   Calendar, 
@@ -38,17 +41,44 @@ const recentPatients = [
 ];
 
 const DoctorDashboard = () => {
+  const { stats } = useStatistics();
+  const [user, setUser] = useState<any>(null);
+  const [appointments, setAppointments] = useState<any[]>([]);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const parsedUser = JSON.parse(userData);
+      setUser(parsedUser);
+      fetchAppointments(parsedUser.id);
+    }
+  }, []);
+
+  const fetchAppointments = async (doctorId: string) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/appointments/doctor/${doctorId}`);
+      const data = await response.json();
+      if (data.success) {
+        setAppointments(data.appointments || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch appointments:', error);
+    }
+  };
+
+  const userName = user?.name || 'Doctor';
+
   return (
     <DashboardLayout 
       role="doctor" 
-      userName="Dr. Sarah Wilson" 
+      userName={userName} 
       navItems={navItems}
     >
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Good Morning, Dr. Wilson</h1>
-          <p className="text-muted-foreground">You have 8 appointments scheduled today</p>
+          <h1 className="text-2xl font-bold text-foreground">Good Morning, {userName}</h1>
+          <p className="text-muted-foreground">You have {appointments.length} appointments scheduled</p>
         </div>
         <div className="flex gap-3">
           <Button variant="outline">
@@ -62,12 +92,20 @@ const DoctorDashboard = () => {
         </div>
       </div>
 
+      {/* System Statistics */}
+      {stats && (
+        <StatsDisplay 
+          totalUsers={stats.totalUsers} 
+          totalHospitals={stats.totalHospitals} 
+        />
+      )}
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
           title="Today's Appointments"
-          value="8"
-          change="2 completed"
+          value={appointments.length.toString()}
+          change={`${appointments.filter(a => a.status === 'completed').length} completed`}
           changeType="positive"
           icon={Calendar}
         />
