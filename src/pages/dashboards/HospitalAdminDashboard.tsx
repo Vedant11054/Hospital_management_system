@@ -1,5 +1,10 @@
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { StatCard } from '@/components/dashboard/StatCard';
+import { StatsDisplay } from '@/components/dashboard/StatsDisplay';
+import { useStatistics } from '@/hooks/use-statistics';
+import { FormDialog } from '@/components/FormDialog';
+import { AddDoctorForm } from '@/components/forms/AddDoctorForm';
+import { useEffect, useState } from 'react';
 import { 
   LayoutDashboard, 
   Users, 
@@ -32,10 +37,41 @@ const todayAppointments = [
 ];
 
 const HospitalAdminDashboard = () => {
+  const { stats } = useStatistics();
+  const [user, setUser] = useState<any>(null);
+  const [showAddDoctor, setShowAddDoctor] = useState(false);
+  const [doctors, setDoctors] = useState<any[]>([]);
+  const [hospitalId, setHospitalId] = useState('');
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const parsedUser = JSON.parse(userData);
+      setUser(parsedUser);
+      // Use user ID as hospital ID for now
+      setHospitalId(parsedUser.id);
+    }
+  }, []);
+
+  const fetchDoctors = async () => {
+    if (!hospitalId) return;
+    try {
+      const response = await fetch(`http://localhost:3001/api/doctors/hospital/${hospitalId}`);
+      const data = await response.json();
+      if (data.success) {
+        setDoctors(data.doctors || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch doctors:', error);
+    }
+  };
+
+  const userName = user?.name || 'Admin';
+
   return (
     <DashboardLayout 
       role="hospital_admin" 
-      userName="Hospital Admin" 
+      userName={userName} 
       navItems={navItems}
     >
       {/* Page Header */}
@@ -49,12 +85,33 @@ const HospitalAdminDashboard = () => {
             <FileText className="w-4 h-4" />
             Reports
           </Button>
-          <Button variant="hero">
+          <Button variant="hero" onClick={() => setShowAddDoctor(true)}>
             <UserPlus className="w-4 h-4" />
             Add Doctor
           </Button>
         </div>
       </div>
+
+      {/* Add Doctor Dialog */}
+      <FormDialog
+        open={showAddDoctor}
+        onOpenChange={setShowAddDoctor}
+        title="Add New Doctor"
+      >
+        <AddDoctorForm
+          hospitalId={hospitalId}
+          onSuccess={fetchDoctors}
+          onClose={() => setShowAddDoctor(false)}
+        />
+      </FormDialog>
+
+      {/* System Statistics */}
+      {stats && (
+        <StatsDisplay 
+          totalUsers={stats.totalUsers} 
+          totalHospitals={stats.totalHospitals} 
+        />
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

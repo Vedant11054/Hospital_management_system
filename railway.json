@@ -1,0 +1,15 @@
+# Railway Configuration
+# Place this in root directory or backend directory
+
+# railway.json configuration for backend deployment
+
+{
+  "build": {
+    "builder": "nixpacks",
+    "buildCommand": "cd backend && npm install"
+  },
+  "deploy": {
+    "startCommand": "cd backend && npm start",
+    "restartPolicyMaxRetries": 5
+  }
+}

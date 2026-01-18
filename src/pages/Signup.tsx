@@ -57,7 +57,7 @@ const Signup = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/signup', {
+      const response = await fetch('http://localhost:3001/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,6 +81,9 @@ const Signup = () => {
       // Store token in localStorage
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
+      if (data.statistics) {
+        localStorage.setItem('statistics', JSON.stringify(data.statistics));
+      }
 
       // Navigate to role-specific dashboard
       const dashboardRoutes: Record<UserRole, string> = {

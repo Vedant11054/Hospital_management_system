@@ -1,5 +1,10 @@
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { StatCard } from '@/components/dashboard/StatCard';
+import { StatsDisplay } from '@/components/dashboard/StatsDisplay';
+import { useStatistics } from '@/hooks/use-statistics';
+import { FormDialog } from '@/components/FormDialog';
+import { AddHospitalForm } from '@/components/forms/AddHospitalForm';
+import { useEffect, useState } from 'react';
 import { 
   LayoutDashboard, 
   Building2, 
@@ -33,10 +38,41 @@ const recentHospitals = [
 ];
 
 const SuperAdminDashboard = () => {
+  const { stats } = useStatistics();
+  const [user, setUser] = useState<any>(null);
+  const [hospitals, setHospitals] = useState<any[]>([]);
+  const [showAddHospital, setShowAddHospital] = useState(false);
+  const [loadingHospitals, setLoadingHospitals] = useState(false);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+    fetchHospitals();
+  }, []);
+
+  const fetchHospitals = async () => {
+    setLoadingHospitals(true);
+    try {
+      const response = await fetch('http://localhost:3001/api/hospitals/list');
+      const data = await response.json();
+      if (data.success) {
+        setHospitals(data.hospitals || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch hospitals:', error);
+    } finally {
+      setLoadingHospitals(false);
+    }
+  };
+
+  const userName = user?.name || 'Admin';
+
   return (
     <DashboardLayout 
       role="super_admin" 
-      userName="Admin User" 
+      userName={userName} 
       navItems={navItems}
     >
       {/* Page Header */}
@@ -45,11 +81,31 @@ const SuperAdminDashboard = () => {
           <h1 className="text-2xl font-bold text-foreground">Super Admin Dashboard</h1>
           <p className="text-muted-foreground">Platform-wide overview and management</p>
         </div>
-        <Button variant="hero">
+        <Button variant="hero" onClick={() => setShowAddHospital(true)}>
           <Building2 className="w-4 h-4" />
           Add Hospital
         </Button>
       </div>
+
+      {/* Add Hospital Dialog */}
+      <FormDialog
+        open={showAddHospital}
+        onOpenChange={setShowAddHospital}
+        title="Add New Hospital"
+      >
+        <AddHospitalForm
+          onSuccess={fetchHospitals}
+          onClose={() => setShowAddHospital(false)}
+        />
+      </FormDialog>
+
+      {/* System Statistics */}
+      {stats && (
+        <StatsDisplay 
+          totalUsers={stats.totalUsers} 
+          totalHospitals={stats.totalHospitals} 
+        />
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

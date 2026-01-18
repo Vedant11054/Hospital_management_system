@@ -1,0 +1,23 @@
+{
+  "users": [
+    {
+      "id": "beb178b7-8ed4-4766-88b1-140e245c199a",
+      "email": "vedantghubade04@gmail.com",
+      "password": "$2a$10$W5jmgMt9Oa8O0VEJbnG/.OeKhQ6A4MakveTQDAaw4aGff1.yQqg.e",
+      "name": "vedant ghubade",
+      "role": "patient",
+      "createdAt": "2026-01-18T10:13:11.671Z"
+    },
+    {
+      "id": "af1b5dfc-205c-4bd4-82b1-86e56b1b0ea1",
+      "email": "vedantghubade05@gmail.com",
+      "password": "$2a$10$eqDk2zcr6b1DX91qK5HlkOZbvFGnW/iMFqXpko9y4w7egT.49HajG",
+      "name": "Error911",
+      "role": "super_admin",
+      "createdAt": "2026-01-18T10:14:23.808Z"
+    }
+  ],
+  "hospitals": [],
+  "doctors": [],
+  "patients": []
+}

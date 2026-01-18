@@ -1,0 +1,52 @@
+# Vercel Ignore File
+# Files/folders to exclude from Vercel deployment
+
+# Dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build outputs
+dist-ssr/
+*.tsbuildinfo
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+.turbo/
+.cache/
+
+# Credentials
+credentials.json
+*.pem
+*.key
+*.p12
+
+# Backend files (we deploy frontend only to Vercel)
+backend/
+.git/
+.gitignore
+
+# Documentation
+*.md
+DOCS_INDEX.md
+TESTING_CHECKLIST.md
+DEPLOYMENT_CHECKLIST.md
+DEPLOYMENT.md
