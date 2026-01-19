@@ -138,7 +138,7 @@ const HospitalAdminDashboard = () => {
         <StatCard
           title="Revenue"
           value="—"
-          change="Coming soon"
+          change="Coming son"
           changeType="neutral"
           icon={DollarSign}
         />
