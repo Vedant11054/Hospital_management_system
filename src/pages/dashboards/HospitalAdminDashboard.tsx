@@ -1,6 +1,5 @@
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { StatsDisplay } from "@/components/dashboard/StatsDisplay";
 import { FormDialog } from "@/components/FormDialog";
 import { AddDoctorForm } from "@/components/forms/AddDoctorForm";
 import { useEffect, useState } from "react";
@@ -29,28 +28,29 @@ const navItems = [
 
 const HospitalAdminDashboard = () => {
   const [user, setUser] = useState<any>(null);
-  const [hospitalId, setHospitalId] = useState("");
+  const [hospitalId, setHospitalId] = useState<string>("");
+
   const [doctors, setDoctors] = useState<any[]>([]);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [showAddDoctor, setShowAddDoctor] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  // Load user & hospital
+  // ---------------- LOAD USER ----------------
   useEffect(() => {
     const userData = localStorage.getItem("user");
-    if (userData) {
-      const parsedUser = JSON.parse(userData);
-      setUser(parsedUser);
-      setHospitalId(parsedUser.id);
-    }
+    if (!userData) return;
+
+    const parsedUser = JSON.parse(userData);
+    setUser(parsedUser);
+
+    // ✅ CRITICAL: use hospitalId, NOT user.id
+    setHospitalId(parsedUser.hospitalId);
   }, []);
 
-  // Fetch data
+  // ---------------- FETCH DATA ----------------
   useEffect(() => {
-    if (hospitalId) {
-      fetchDoctors();
-      fetchAppointments();
-    }
+    if (!hospitalId) return;
+    fetchDoctors();
+    fetchAppointments();
   }, [hospitalId]);
 
   const fetchDoctors = async () => {
@@ -59,9 +59,9 @@ const HospitalAdminDashboard = () => {
         `http://localhost:3001/api/doctors/hospital/${hospitalId}`
       );
       const data = await res.json();
-      if (data.success) setDoctors(data.doctors);
+      if (data.success) setDoctors(data.doctors || []);
     } catch (err) {
-      console.error("Failed to fetch doctors", err);
+      console.error("Failed to fetch doctors:", err);
     }
   };
 
@@ -71,9 +71,9 @@ const HospitalAdminDashboard = () => {
         `http://localhost:3001/api/appointments/hospital/${hospitalId}`
       );
       const data = await res.json();
-      if (data.success) setAppointments(data.appointments);
+      if (data.success) setAppointments(data.appointments || []);
     } catch (err) {
-      console.error("Failed to fetch appointments", err);
+      console.error("Failed to fetch appointments:", err);
     }
   };
 
@@ -89,6 +89,7 @@ const HospitalAdminDashboard = () => {
           <h1 className="text-2xl font-bold">Hospital Dashboard</h1>
           <p className="text-muted-foreground">Hospital Overview</p>
         </div>
+
         <Button variant="hero" onClick={() => setShowAddDoctor(true)}>
           <UserPlus className="w-4 h-4" />
           Add Doctor
@@ -102,8 +103,11 @@ const HospitalAdminDashboard = () => {
         title="Add Doctor"
       >
         <AddDoctorForm
-          hospitalId={hospitalId}
-          onSuccess={fetchDoctors}
+          hospitalId={hospitalId} // ✅ correct hospital id
+          onSuccess={() => {
+            fetchDoctors();
+            setShowAddDoctor(false);
+          }}
           onClose={() => setShowAddDoctor(false)}
         />
       </FormDialog>
@@ -118,7 +122,7 @@ const HospitalAdminDashboard = () => {
           icon={Stethoscope}
         />
         <StatCard
-          title="Today's Appointments"
+          title="Appointments"
           value={appointments.length}
           change="Live"
           changeType="neutral"
@@ -134,7 +138,7 @@ const HospitalAdminDashboard = () => {
         <StatCard
           title="Revenue"
           value="—"
-          change="Coming soon"
+          change="Coming son"
           changeType="neutral"
           icon={DollarSign}
         />
@@ -155,12 +159,12 @@ const HospitalAdminDashboard = () => {
                 className="flex justify-between items-center p-4 mb-2 rounded bg-muted/50"
               >
                 <div>
-                  <p className="font-medium">Doctor: {apt.doctorId}</p>
+                  <p className="font-medium">Doctor ID: {apt.doctorId}</p>
                   <p className="text-sm text-muted-foreground">
-                    Patient: {apt.patientId}
+                    Patient ID: {apt.patientId}
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4" />
                   <span>
                     {apt.date} {apt.time}
