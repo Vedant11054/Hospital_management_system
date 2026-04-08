@@ -1,0 +1,34 @@
+Role,Name,Hospital,Email,Password
+hospital_admin,Rajesh Sharma,Alexis Multispeciality Hospital,admin@alexishospital.nagpur,alexis@123
+doctor,Dr. Prashant Kadu,Alexis Multispeciality Hospital,prashant.kadu@alexishospital.nagpur,doctor@123
+doctor,Dr. Sudhir Tiwari,Alexis Multispeciality Hospital,sudhir.tiwari@alexishospital.nagpur,doctor@123
+doctor,Dr. Manisha Gaikar,Alexis Multispeciality Hospital,manisha.gaikar@alexishospital.nagpur,doctor@123
+doctor,Dr. Arun Meshram,Alexis Multispeciality Hospital,arun.meshram@alexishospital.nagpur,doctor@123
+hospital_admin,Anita Deshmukh,Wockhardt Hospital Nagpur,admin@wockhardtnagpur.com,wockhardt@123
+doctor,Dr. Sameer Arbat,Wockhardt Hospital Nagpur,sameer.arbat@wockhardtnagpur.com,doctor@123
+doctor,Dr. Vikram Chandak,Wockhardt Hospital Nagpur,vikram.chandak@wockhardtnagpur.com,doctor@123
+doctor,Dr. Nisha Rathod,Wockhardt Hospital Nagpur,nisha.rathod@wockhardtnagpur.com,doctor@123
+doctor,Dr. Hemant Balpande,Wockhardt Hospital Nagpur,hemant.balpande@wockhardtnagpur.com,doctor@123
+hospital_admin,Sanjay Joshi,Care Hospital Nagpur,admin@carehospitalnagpur.in,care@123
+doctor,Dr. Ravi Agarwal,Care Hospital Nagpur,ravi.agarwal@carehospitalnagpur.in,doctor@123
+doctor,Dr. Pramod Jiwtode,Care Hospital Nagpur,pramod.jiwtode@carehospitalnagpur.in,doctor@123
+doctor,Dr. Kalyani Singh,Care Hospital Nagpur,kalyani.singh@carehospitalnagpur.in,doctor@123
+doctor,Dr. Ashish Dabhade,Care Hospital Nagpur,ashish.dabhade@carehospitalnagpur.in,doctor@123
+hospital_admin,Deepak Thakur,Orange City Hospital & Research Institute,admin@orangecityhospital.com,orange@123
+doctor,Dr. Suresh Ughade,Orange City Hospital & Research Institute,suresh.ughade@orangecityhospital.com,doctor@123
+doctor,Dr. Rashmi Deshpande,Orange City Hospital & Research Institute,rashmi.deshpande@orangecityhospital.com,doctor@123
+doctor,Dr. Nitin Kochar,Orange City Hospital & Research Institute,nitin.kochar@orangecityhospital.com,doctor@123
+doctor,Dr. Preeti Bawankar,Orange City Hospital & Research Institute,preeti.bawankar@orangecityhospital.com,doctor@123
+hospital_admin,Pooja Nagdeve,Getwell Hospital & Research Institute,admin@getwellhospital.nagpur,getwell@123
+doctor,Dr. Ajay Bhatt,Getwell Hospital & Research Institute,ajay.bhatt@getwellhospital.nagpur,doctor@123
+doctor,Dr. Seema Fulzele,Getwell Hospital & Research Institute,seema.fulzele@getwellhospital.nagpur,doctor@123
+doctor,Dr. Mohan Hedau,Getwell Hospital & Research Institute,mohan.hedau@getwellhospital.nagpur,doctor@123
+doctor,Dr. Ritu Pathak,Getwell Hospital & Research Institute,ritu.pathak@getwellhospital.nagpur,doctor@123
+patient,Rahul Deshmukh,,rahul.deshmukh@gmail.com,patient@123
+patient,Priya Wankhede,,priya.wankhede@gmail.com,patient@123
+patient,Amit Kapse,,amit.kapse@gmail.com,patient@123
+patient,Sneha Fulkar,,sneha.fulkar@gmail.com,patient@123
+patient,Vijay Nagrale,,vijay.nagrale@gmail.com,patient@123
+patient,Anita Borkar,,anita.borkar@gmail.com,patient@123
+patient,Suresh Gawande,,suresh.gawande@gmail.com,patient@123
+patient,Meena Bopche,,meena.bopche@gmail.com,patient@123

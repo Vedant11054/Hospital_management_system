@@ -1,0 +1,42 @@
+﻿Starting massive seed...
+
+--- Creating Hospital 1 ---
+  Added Doctor 1 for Night Shift
+  Added Doctor 2 for Day Shift
+  Added Doctor 3 for Evening Shift
+
+--- Creating Hospital 2 ---
+  Added Doctor 1 for Night Shift
+  Added Doctor 2 for Day Shift
+node : Seeding 
+error: Request 
+failed: 500 
+{"error":"Google API 
+error - [429] Quota 
+exceeded for quota 
+metric 'Read 
+requests' and limit 
+'Read requests per 
+minute per user' of 
+service 'sheets.googl
+eapis.com' for 
+consumer 'project_num
+ber:411118212456'."}
+At line:1 char:1
++ node 
+seed_massive.js > 
+mass_log.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo   
+           : 
+NotSpecified    : 
+(Seeding error: .    
+..11118212456'."}:S  
+  tring) [], 
+RemoteEx    ception
+    + 
+FullyQualifiedErr    
+orId : NativeComman  
+  dError
+ 

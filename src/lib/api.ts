@@ -1,7 +1,7 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export const apiClient = {
-  async post(endpoint: string, data: any) {
+  async post(endpoint: string, data: unknown) {
     const response = await fetch(`${API_URL}${endpoint}`, {
       method: 'POST',
       headers: {
@@ -29,7 +29,7 @@ export const apiClient = {
     return response.json();
   },
 
-  async postWithAuth(endpoint: string, data: any) {
+  async postWithAuth(endpoint: string, data: unknown) {
     const token = localStorage.getItem('token');
     const response = await fetch(`${API_URL}${endpoint}`, {
       method: 'POST',

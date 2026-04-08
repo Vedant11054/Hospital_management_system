@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Activity, ArrowLeft, Eye, EyeOff, Building2, UserCog, Stethoscope, Heart, AlertCircle } from 'lucide-react';
 import { UserRole } from '@/types/auth';
+import { useAuth } from '@/context/AuthContext';
 
 const roleIcons = {
   super_admin: Building2,
@@ -22,6 +23,7 @@ const roleLabels = {
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -78,12 +80,8 @@ const Signup = () => {
         return;
       }
 
-      // Store token in localStorage
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      if (data.statistics) {
-        localStorage.setItem('statistics', JSON.stringify(data.statistics));
-      }
+      // Store session via AuthContext
+      login(data.user, data.token, data.statistics);
 
       // Navigate to role-specific dashboard
       const dashboardRoutes: Record<UserRole, string> = {

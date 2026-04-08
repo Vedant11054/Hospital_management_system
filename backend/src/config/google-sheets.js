@@ -122,6 +122,17 @@ export const db = {
     };
   },
 
+  async findHospitalByAdminEmail(email) {
+    const { hospitalsSheet } = await initializeSheet();
+    const rows = await hospitalsSheet.getRows();
+    const hospital = rows.find(r => r.get("AdminEmail") === email);
+    if (!hospital) return null;
+    return {
+      id: hospital.get("ID"),
+      name: hospital.get("Name"),
+    };
+  },
+
   async getTotalUsers() {
     const { usersSheet } = await initializeSheet();
     const rows = await usersSheet.getRows();
@@ -154,9 +165,13 @@ export const db = {
     return rows.map(row => ({
       id: row.get("ID"),
       name: row.get("Name"),
-      status: row.get("Status"),
+      address: row.get("Address"),
+      phone: row.get("Phone"),
+      adminEmail: row.get("AdminEmail"),
+      status: row.get("Status") || "active",
       users: Number(row.get("Users")) || 0,
-      plan: row.get("Plan"),
+      plan: row.get("Plan") || "Basic",
+      createdAt: row.get("CreatedAt"),
     }));
   },
 
@@ -199,6 +214,46 @@ export const db = {
       }));
   },
 
+  async getAllDoctors() {
+    const { doctorsSheet } = await initializeSheet();
+    const rows = await doctorsSheet.getRows();
+
+    return rows.map(r => ({
+      id: r.get("ID"),
+      hospitalId: r.get("HospitalID"),
+      name: r.get("Name"),
+      specialty: r.get("Specialty"),
+      email: r.get("Email"),
+      phone: r.get("Phone"),
+      qualification: r.get("Qualification"),
+      createdAt: r.get("CreatedAt"),
+    }));
+  },
+
+  async deleteDoctor(doctorId) {
+    const { doctorsSheet } = await initializeSheet();
+    const rows = await doctorsSheet.getRows();
+    const row = rows.find(r => r.get("ID") === doctorId);
+    if (!row) throw new Error("Doctor not found");
+    await row.delete();
+    return true;
+  },
+
+  async findDoctorByEmail(email) {
+    const { doctorsSheet } = await initializeSheet();
+    const rows = await doctorsSheet.getRows();
+    const row = rows.find(r => r.get("Email") === email);
+    if (!row) return null;
+    return {
+      id: row.get("ID"),
+      hospitalId: row.get("HospitalID"),
+      name: row.get("Name"),
+      specialty: row.get("Specialty"),
+      email: row.get("Email"),
+      qualification: row.get("Qualification"),
+    };
+  },
+
   // ================= APPOINTMENTS =================
   async addAppointment(appointment) {
     const { appointmentsSheet } = await initializeSheet();
@@ -216,6 +271,16 @@ export const db = {
     return appointment;
   },
 
+  async updateAppointmentStatus(appointmentId, status) {
+    const { appointmentsSheet } = await initializeSheet();
+    const rows = await appointmentsSheet.getRows();
+    const row = rows.find(r => r.get("ID") === appointmentId);
+    if (!row) throw new Error("Appointment not found");
+    row.set("Status", status);
+    await row.save();
+    return { id: appointmentId, status };
+  },
+
   async getAppointmentsByDoctor(doctorId) {
     const { appointmentsSheet } = await initializeSheet();
     const rows = await appointmentsSheet.getRows();
@@ -224,11 +289,48 @@ export const db = {
       .filter(r => r.get("DoctorID") === doctorId)
       .map(r => ({
         id: r.get("ID"),
+        patientId: r.get("PatientID"),
         hospitalId: r.get("HospitalID"),
         date: r.get("Date"),
         time: r.get("Time"),
         reason: r.get("Reason"),
         status: r.get("Status"),
+      }));
+  },
+
+  async getAppointmentsByPatient(patientId) {
+    const { appointmentsSheet } = await initializeSheet();
+    const rows = await appointmentsSheet.getRows();
+
+    return rows
+      .filter(r => r.get("PatientID") === patientId)
+      .map(r => ({
+        id: r.get("ID"),
+        doctorId: r.get("DoctorID"),
+        hospitalId: r.get("HospitalID"),
+        date: r.get("Date"),
+        time: r.get("Time"),
+        reason: r.get("Reason"),
+        status: r.get("Status"),
+      }));
+  },
+
+  async getAppointmentsByHospital(hospitalId) {
+    const { appointmentsSheet } = await initializeSheet();
+    const rows = await appointmentsSheet.getRows();
+
+    return rows
+      .filter(r => r.get("HospitalID") === hospitalId)
+      .map(r => ({
+        id: r.get("ID"),
+        patientId: r.get("PatientID"),
+        doctorId: r.get("DoctorID"),
+        hospitalId: r.get("HospitalID"),
+        date: r.get("Date"),
+        time: r.get("Time"),
+        reason: r.get("Reason"),
+        status: r.get("Status"),
+        createdAt: r.get("CreatedAt"),
       }));
   },
 

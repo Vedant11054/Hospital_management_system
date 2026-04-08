@@ -72,3 +72,44 @@ export const getDoctorAppointments = async (req, res) => {
     res.status(500).json({ error: error.message || 'Failed to fetch appointments' });
   }
 };
+
+export const getHospitalAppointments = async (req, res) => {
+  try {
+    const { hospitalId } = req.params;
+
+    if (!hospitalId) {
+      return res.status(400).json({ error: 'Hospital ID required' });
+    }
+
+    const appointments = await db.getAppointmentsByHospital(hospitalId);
+
+    res.json({
+      success: true,
+      appointments,
+    });
+  } catch (error) {
+    console.error('Get hospital appointments error:', error);
+    res.status(500).json({ error: error.message || 'Failed to fetch appointments' });
+  }
+};
+export const updateAppointmentStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!id || !status) {
+      return res.status(400).json({ error: 'Missing appointment ID or status' });
+    }
+
+    const updated = await db.updateAppointmentStatus(id, status);
+
+    res.json({
+      success: true,
+      message: `Appointment status updated to ${status}`,
+      appointment: updated,
+    });
+  } catch (error) {
+    console.error('Update appointment status error:', error);
+    res.status(500).json({ error: error.message || 'Failed to update appointment status' });
+  }
+};

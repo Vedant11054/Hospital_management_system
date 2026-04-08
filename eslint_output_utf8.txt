@@ -1,0 +1,62 @@
+﻿
+D:\projects\Hospital management\src\components\ui\badge.tsx
+  29:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\projects\Hospital management\src\components\ui\button.tsx
+  52:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\projects\Hospital management\src\components\ui\command.tsx
+  24:11  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+D:\projects\Hospital management\src\components\ui\form.tsx
+  129:10  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\projects\Hospital management\src\components\ui\navigation-menu.tsx
+  111:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\projects\Hospital management\src\components\ui\sidebar.tsx
+  636:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\projects\Hospital management\src\components\ui\sonner.tsx
+  27:19  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\projects\Hospital management\src\components\ui\textarea.tsx
+  5:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+D:\projects\Hospital management\src\components\ui\toggle.tsx
+  37:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\projects\Hospital management\src\context\AuthContext.tsx
+  98:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\projects\Hospital management\src\lib\api.ts
+   4:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  32:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\projects\Hospital management\src\pages\dashboards\DoctorDashboard.tsx
+  45:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  46:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\projects\Hospital management\src\pages\dashboards\HospitalAdminDashboard.tsx
+  30:36  error    Unexpected any. Specify a different type                                                                                                   @typescript-eslint/no-explicit-any
+  33:42  error    Unexpected any. Specify a different type                                                                                                   @typescript-eslint/no-explicit-any
+  34:52  error    Unexpected any. Specify a different type                                                                                                   @typescript-eslint/no-explicit-any
+  54:6   warning  React Hook useEffect has missing dependencies: 'fetchAppointments' and 'fetchDoctors'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\projects\Hospital management\src\pages\dashboards\PatientDashboard.tsx
+  34:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  36:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  37:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  38:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  40:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  41:56  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\projects\Hospital management\src\pages\dashboards\SuperAdminDashboard.tsx
+  36:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  37:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\projects\Hospital management\tailwind.config.ts
+  117:13  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+Ô£û 27 problems (18 errors, 9 warnings)
+

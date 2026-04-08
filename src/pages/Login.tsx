@@ -1,27 +1,21 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Activity, ArrowLeft, Eye, EyeOff, Building2, UserCog, Stethoscope, Heart, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Building2, UserCog, Stethoscope, Heart, AlertCircle, Activity } from 'lucide-react';
 import { UserRole } from '@/types/auth';
+import { useAuth } from '@/context/AuthContext';
 
-const roleIcons = {
-  super_admin: Building2,
-  hospital_admin: UserCog,
-  doctor: Stethoscope,
-  patient: Heart,
-};
-
-const roleLabels = {
-  super_admin: 'Super Admin',
-  hospital_admin: 'Hospital Admin',
-  doctor: 'Doctor',
-  patient: 'Patient',
-};
+const roles: { id: UserRole; label: string; icon: React.ElementType }[] = [
+  { id: 'super_admin', label: 'Super Admin', icon: Building2 },
+  { id: 'hospital_admin', label: 'Hospital Admin', icon: UserCog },
+  { id: 'doctor', label: 'Doctor', icon: Stethoscope },
+  { id: 'patient', label: 'Patient', icon: Heart },
+];
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -37,201 +31,132 @@ const Login = () => {
     try {
       const response = await fetch('http://localhost:3001/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          role: selectedRole,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role: selectedRole }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Login failed');
-        setIsLoading(false);
+        setError(data.error || 'Login failed. Check your credentials.');
         return;
       }
 
-      // Store token, user, and statistics in localStorage
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      if (data.statistics) {
-        localStorage.setItem('statistics', JSON.stringify(data.statistics));
-      }
+      login(data.user, data.token, data.statistics);
 
-      // Navigate to role-specific dashboard
-      const dashboardRoutes: Record<UserRole, string> = {
+      const routes: Record<UserRole, string> = {
         super_admin: '/super-admin',
         hospital_admin: '/hospital-admin',
         doctor: '/doctor',
         patient: '/patient',
       };
 
-      navigate(dashboardRoutes[selectedRole]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      navigate(routes[selectedRole]);
+    } catch {
+      setError('Cannot connect to server. Make sure the backend is running.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 gradient-primary relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+
+        {/* Logo */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-12 h-12 gradient-primary rounded-xl mb-3">
+            <Activity className="w-6 h-6 text-white" />
+          </div>
+          <h1 className="text-xl font-bold text-foreground">MediCore</h1>
+          <p className="text-muted-foreground text-sm mt-1">Sign in to your account</p>
         </div>
-        
-        <div className="relative z-10 flex flex-col justify-center p-12 text-white">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur">
-              <Activity className="w-6 h-6" />
-            </div>
-            <span className="text-2xl font-bold">MediCore</span>
-          </div>
-          
-          <h1 className="text-4xl font-bold mb-4">
-            Welcome Back
-          </h1>
-          <p className="text-lg text-white/80 mb-8">
-            Sign in to access your personalized healthcare management dashboard.
-          </p>
 
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 text-white/80">
-              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                <Building2 className="w-4 h-4" />
-              </div>
-              <span>Manage multiple hospitals</span>
-            </div>
-            <div className="flex items-center gap-3 text-white/80">
-              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                <UserCog className="w-4 h-4" />
-              </div>
-              <span>Role-based access control</span>
-            </div>
-            <div className="flex items-center gap-3 text-white/80">
-              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                <Stethoscope className="w-4 h-4" />
-              </div>
-              <span>Secure patient records</span>
-            </div>
-          </div>
-        </div>
-      </div>
+        {/* Card */}
+        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
 
-      {/* Right Panel - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-background">
-        <div className="w-full max-w-md">
-          {/* Back Link */}
-          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
-          </Link>
-
-          {/* Mobile Logo */}
-          <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-              <Activity className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold">MediCore</span>
-          </div>
-
-          <h2 className="text-2xl font-bold text-foreground mb-2">Sign In</h2>
-          <p className="text-muted-foreground mb-8">
-            Enter your credentials to access your dashboard
-          </p>
-
-          {/* Error Message */}
+          {/* Error */}
           {error && (
-            <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg flex gap-3">
-              <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-destructive">{error}</p>
+            <div className="flex items-start gap-2 p-3 mb-4 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{error}</span>
             </div>
           )}
 
-          {/* Role Selector */}
-          <div className="mb-6">
-            <Label className="text-sm font-medium mb-3 block">Select Your Role</Label>
-            <div className="grid grid-cols-2 gap-3">
-              {(Object.keys(roleIcons) as UserRole[]).map((role) => {
-                const Icon = roleIcons[role];
-                return (
-                  <button
-                    key={role}
-                    type="button"
-                    onClick={() => setSelectedRole(role)}
-                    className={`p-4 rounded-xl border-2 transition-all duration-200 text-left ${
-                      selectedRole === role
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border hover:border-primary/30'
-                    }`}
-                  >
-                    <Icon className={`w-5 h-5 mb-2 ${selectedRole === role ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <span className={`text-sm font-medium ${selectedRole === role ? 'text-primary' : 'text-foreground'}`}>
-                      {roleLabels[role]}
-                    </span>
-                  </button>
-                );
-              })}
+          {/* Role selector */}
+          <div className="mb-5">
+            <p className="text-sm font-medium text-foreground mb-2">Who are you?</p>
+            <div className="grid grid-cols-2 gap-2">
+              {roles.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setSelectedRole(id)}
+                  className={`flex items-center gap-2 p-2.5 rounded-lg border text-sm transition-all ${
+                    selectedRole === id
+                      ? 'border-primary bg-primary/10 text-primary font-medium'
+                      : 'border-border bg-background text-foreground hover:border-primary/40 hover:bg-primary/5'
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 shrink-0 ${selectedRole === id ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <span className="truncate">{label}</span>
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Login Form */}
+          {/* Form */}
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email" className="text-sm font-medium">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="your@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1.5"
+                className="mt-1"
                 required
+                autoComplete="email"
               />
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <Label htmlFor="password">Password</Label>
-                <a href="#" className="text-sm text-primary hover:underline">Forgot password?</a>
-              </div>
-              <div className="relative">
+              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+              <div className="relative mt-1">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pr-10"
+                  className="pr-9"
                   required
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            <Button type="submit" variant="hero" size="lg" className="w-full" disabled={isLoading}>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-2.5 px-4 gradient-primary text-white text-sm font-medium rounded-lg hover:opacity-90 disabled:opacity-60 transition-opacity"
+            >
               {isLoading ? 'Signing in...' : 'Sign In'}
-            </Button>
+            </button>
           </form>
 
-          <p className="text-center text-sm text-muted-foreground mt-6">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-primary hover:underline font-medium">
-              Sign up
-            </Link>
+          <p className="text-center text-sm text-muted-foreground mt-4">
+            No account?{' '}
+            <Link to="/signup" className="text-primary hover:underline font-medium">Sign up</Link>
           </p>
         </div>
       </div>
